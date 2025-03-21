@@ -1,10 +1,21 @@
+import { Box, Typography } from "@mui/joy";
 import Auth from "../pages/Auth";
 
 export default function Header() {
   return (
-    <header className="flex justify-between  px-6 py-4">
-      <div className="text-2xl font-bold text-neutral-200">Notebook App</div>
+    <Box
+      component={"header"}
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        p: 1.5,
+      }}
+    >
+      <Typography level="h2" fontWeight={500}>
+        Notes
+      </Typography>
       <Auth />
-    </header>
+    </Box>
   );
 }

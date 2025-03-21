@@ -1,3 +1,4 @@
+import { Avatar, Box, Button, Typography } from "@mui/joy";
 import { useAuth } from "../context/auth-provider";
 
 export default function Auth() {
@@ -6,31 +7,28 @@ export default function Auth() {
   return (
     <>
       {user ? (
-        <div className="flex items-center gap-4">
-          <img
-            src={user.photoURL!}
-            alt="Profile"
-            className="w-10 h-10 rounded-full"
-          />
-          <div className="flex flex-col text-sm">
-            <span className="font-semibold">{user.displayName}</span>
-            <span className="text-gray-500">{user.email}</span>
-          </div>
-          <button
-            onClick={logout}
-            className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Avatar src={user.photoURL!} alt={user.displayName!} />
+          <Box>
+            <Typography level="title-lg">{user.displayName}</Typography>
+            <Typography level="body-sm">{user.email}</Typography>
+          </Box>
+          <Button onClick={logout}>Logout</Button>
+        </Box>
       ) : (
-        <button
+        <Button
+          variant="soft"
           onClick={login}
-          className="bg-blue-500 text-white px-4 py-2 flex rounded-md shadow-md hover:bg-blue-600"
+          startDecorator={
+            <Avatar
+              src={"/google.svg"}
+              alt="Google"
+              style={{ width: "20px", height: "20px" }}
+            />
+          }
         >
-          <img src={"/google.svg"} alt="Google" className="w-6 h-6 mr-2" />
           Sign in with Google
-        </button>
+        </Button>
       )}
     </>
   );

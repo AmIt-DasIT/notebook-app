@@ -4,6 +4,18 @@ import { db } from "../../firebase-config";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Note } from "./Notes";
 import { useAuth } from "../context/auth-provider";
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Input,
+  Modal,
+  ModalClose,
+  Sheet,
+  Textarea,
+  Typography,
+} from "@mui/joy";
 
 interface NoteItemProps {
   note: Note;
@@ -16,6 +28,7 @@ export default function NoteItem({
   onNoteUpdated,
   showToast,
 }: NoteItemProps) {
+  const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(note.title || "");
   const [editedText, setEditedText] = useState(note.text);
@@ -33,6 +46,7 @@ export default function NoteItem({
   };
 
   const handleEdit = async () => {
+    setIsEditing(true);
     try {
       await updateDoc(doc(db, `users/${user?.uid}/notes`, note.id), {
         title: editedTitle,
@@ -40,6 +54,7 @@ export default function NoteItem({
       });
       showToast("success", "Note updated successfully!");
       setIsEditing(false);
+      setOpen(false);
       onNoteUpdated();
     } catch (error) {
       console.error("Error updating note:", error);
@@ -49,57 +64,99 @@ export default function NoteItem({
 
   return (
     <>
-      {isEditing ? (
-        <div
-          className={`${
-            isEditing ? "opacity-100" : "opacity-0"
-          } absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-neutral-800 border border-neutral-700 rounded-md p-3 w-[500px] min-h-[300px]`}
+      <Modal
+        aria-labelledby="modal-title"
+        aria-describedby="modal-desc"
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setIsEditing(false);
+        }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Sheet
+          variant="outlined"
+          sx={{ minWidth: 500, borderRadius: "md", p: 3, boxShadow: "lg" }}
         >
-          <input
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <Typography
+            component="h2"
+            id="modal-title"
+            level="h4"
+            textColor="inherit"
+            sx={{ fontWeight: "lg", mb: 1 }}
+          >
+            Update Note
+          </Typography>
+          <Input
             value={editedTitle}
             onChange={(e) => setEditedTitle(e.target.value)}
-            className="w-full text-lg font-bold border-b border-gray-300 focus:outline-none"
+            placeholder="Title"
+            sx={{ mb: 2 }}
           />
-          <textarea
+          <Textarea
             value={editedText}
             onChange={(e) => setEditedText(e.target.value)}
-            rows={10}
-            className="w-full mt-2 resize-none focus:outline-none"
+            minRows={4}
+            maxRows={8}
+            placeholder="Take a note..."
+            sx={{ mb: 2 }}
           />
-          <button
+          <Button
             onClick={handleEdit}
-            className="bg-blue-500 text-white !px-4 !py-2 mt-2 rounded-md hover:bg-blue-600"
+            variant="soft"
+            disabled={isEditing}
+            size="md"
           >
-            Save
-          </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            className="ml-2 bg-gray-300 !px-4 !py-2 mt-2 rounded-md"
-          >
-            Cancel
-          </button>
-        </div>
-      ) : (
-        <div
-          className="relative p-4 rounded-md shadow-md"
-          style={{ background: note.color }}
-        >
-          <h3 className="font-bold text-lg text-gray-700">{note.title}</h3>
-          <p className="text-gray-700 mt-1">{note.text}</p>
-          <div
-            onClick={() => setIsEditing(true)}
-            className="absolute top-2 right-8 text-blue-500 hover:text-blue-600 cursor-pointer"
-          >
-            <img src="/edit.svg" alt="Edit" className="w-6 h-6" />
-          </div>
-          <div
+            {isEditing ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CircularProgress size="sm" />
+                Updating...
+              </Box>
+            ) : (
+              "Update"
+            )}
+          </Button>
+        </Sheet>
+      </Modal>
+      <Card
+        sx={{
+          background: note.color,
+          minWidth: 280,
+          maxWidth: 320,
+          maxHeight: 170,
+          overflow: "hidden",
+        }}
+        variant="soft"
+      >
+        <Typography level="title-lg">{note.title}</Typography>
+        <Typography level="body-sm">{note.text}</Typography>
+        <Box sx={{ position: "absolute", top: 10, right: 10 }}>
+          <img
+            src="/edit.svg"
+            alt="Edit"
+            onClick={() => {
+              setOpen(true);
+            }}
+            style={{
+              width: "27px",
+              height: "27px",
+              cursor: "pointer",
+              marginRight: "6px",
+            }}
+          />
+          <img
+            src="/delete.svg"
+            alt="Delete"
             onClick={handleDelete}
-            className="absolute top-2 right-2 text-red-500 hover:text-red-600 cursor-pointer"
-          >
-            <img src="/delete.svg" alt="Delete" className="w-6 h-6" />
-          </div>
-        </div>
-      )}
+            style={{ width: "27px", height: "27px", cursor: "pointer" }}
+          />
+        </Box>
+      </Card>
     </>
   );
 }

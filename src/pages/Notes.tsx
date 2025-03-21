@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase-config";
 import { collection, getDocs } from "firebase/firestore";
 import { useAuth } from "../context/auth-provider";
-import AddNoteForm from "./AddNoteForm";
+import NoteForm from "./NoteForm";
 import NoteItem from "./NoteItem";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  Stack,
+  Typography,
+} from "@mui/joy";
 
 export interface Note {
   id: string;
@@ -15,6 +23,7 @@ export interface Note {
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -37,10 +46,12 @@ export default function Notes() {
 
   const showToast = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
+    setOpen(true);
 
     setTimeout(() => {
       setMessage(null);
-    }, 3000);
+      setOpen(false);
+    }, 5000);
   };
 
   useEffect(() => {
@@ -49,40 +60,54 @@ export default function Notes() {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center">
-        <p className="text-xl font-medium text-neutral-300">
-          Please login to view notes
-        </p>
-      </div>
+      <Box
+        sx={{
+          textAlign: "center",
+          fontSize: "1.25rem",
+          mt: 4,
+          fontWeight: 500,
+        }}
+      >
+        Please login to view your notes
+      </Box>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 relative transition-all duration-500">
-      {/* Toast Notification */}
-      {message && (
-        <div
-          className={`fixed bottom-4 right-4 p-3 rounded-md shadow-lg z-50 ${
-            message.type === "success"
-              ? "bg-green-500 text-black"
-              : "bg-red-500 text-black"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+    <Box sx={{ mt: 2 }}>
+      {/* Toast Message */}
+      <Snackbar
+        variant="soft"
+        color={message?.type === "success" ? "success" : "danger"}
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        sx={{ fontWeight: 600 }}
+        endDecorator={
+          <Button
+            onClick={() => setOpen(false)}
+            size="sm"
+            variant="solid"
+            color={message?.type === "success" ? "success" : "danger"}
+          >
+            Dismiss
+          </Button>
+        }
+      >
+        {message?.text}
+      </Snackbar>
 
       {/* Add Note Form */}
-      <AddNoteForm onNoteAdded={fetchNotes} showToast={showToast} />
+      <NoteForm onNoteAdded={fetchNotes} showToast={showToast}  />
 
       {/* Notes Grid */}
       {loading ? (
-        <div>Loading...</div>
+        <Box sx={{ display: "flex", mt: 4 }}>
+          <CircularProgress size="sm" />
+        </Box>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {notes.length === 0 && (
-            <p className="text-2xl font-bold">No notes found</p>
-          )}
+        <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
+          {notes.length === 0 && <Typography>No notes found</Typography>}
           {notes.map((note) => (
             <NoteItem
               key={note.id}
@@ -91,8 +116,8 @@ export default function Notes() {
               showToast={showToast}
             />
           ))}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Box>
   );
 }
