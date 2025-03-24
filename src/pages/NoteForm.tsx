@@ -48,10 +48,12 @@ export default function NoteForm({
     const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
     try {
-      await addDoc(collection(db, `users/${user?.uid}/notes`), {
+      await addDoc(collection(db, `notes`), {
         title: newTitle || "Untitled",
         text: newNote,
         color: randomColor,
+        sharedWith: [],
+        userId: user?.uid,
       });
 
       showToast("success", "Note added successfully!");
@@ -59,7 +61,6 @@ export default function NoteForm({
       setNewNote("");
       onNoteAdded();
     } catch (error) {
-      console.error("Error adding note:", error);
       showToast("error", "Failed to add note. Try again.");
     } finally {
       setIsAdding(false);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../../firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useAuth } from "../context/auth-provider";
 import NoteForm from "./NoteForm";
 import NoteItem from "./NoteItem";
@@ -18,6 +18,9 @@ export interface Note {
   title?: string;
   text: string;
   color: string;
+  sharedWith?: string[];
+  shared?: boolean;
+  userId: string;
 }
 
 export default function Notes() {
@@ -34,12 +37,28 @@ export default function Notes() {
     if (!user) return;
 
     const querySnapshot = await getDocs(
-      collection(db, `users/${user?.uid}/notes`)
+      query(collection(db, `notes`), where("userId", "==", user.uid))
     );
+
+    const q = query(
+      collection(db, "notes"),
+      where("sharedWith", "array-contains", user.uid)
+    );
+
+    // Get the documents
+    const getSharedNotes = await getDocs(q);
+    console.log("Shared Notes:", getSharedNotes.docs);
+
     const notesList = querySnapshot.docs.map((doc) => ({
       id: doc.id,
+      shared: false,
       ...doc.data(),
     }));
+
+    getSharedNotes.docs.forEach((doc) => {
+      notesList.push({ id: doc.id, shared: true, ...doc.data() });
+    });
+
     setNotes(notesList as Note[]);
     setLoading(false);
   };
@@ -60,7 +79,7 @@ export default function Notes() {
 
   if (!user) {
     return (
-      <Box
+      <Typography
         sx={{
           textAlign: "center",
           fontSize: "1.25rem",
@@ -69,7 +88,7 @@ export default function Notes() {
         }}
       >
         Please login to view your notes
-      </Box>
+      </Typography>
     );
   }
 
@@ -98,7 +117,7 @@ export default function Notes() {
       </Snackbar>
 
       {/* Add Note Form */}
-      <NoteForm onNoteAdded={fetchNotes} showToast={showToast}  />
+      <NoteForm onNoteAdded={fetchNotes} showToast={showToast} />
 
       {/* Notes Grid */}
       {loading ? (
