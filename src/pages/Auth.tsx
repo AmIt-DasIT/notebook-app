@@ -1,13 +1,21 @@
-import { Avatar, Box, Button, Typography } from "@mui/joy";
+import { Avatar, Box, Button, Typography, useColorScheme } from "@mui/joy";
 import { useAuth } from "../context/auth-provider";
+import { DarkMode, LightMode } from "@mui/icons-material";
 
 export default function Auth() {
   const { login, logout, user } = useAuth();
+  const { mode, setMode } = useColorScheme();
 
   return (
     <>
       {user ? (
         <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Button
+            variant="plain"
+            onClick={() => setMode(mode === "dark" ? "light" : "dark")}
+          >
+            {mode === "dark" ? <LightMode /> : <DarkMode />}
+          </Button>
           <Avatar src={user.photoURL!} alt={user.displayName!} />
           <Box>
             <Typography level="title-lg">{user.displayName}</Typography>

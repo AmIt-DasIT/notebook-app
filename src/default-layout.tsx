@@ -1,8 +1,17 @@
-import { Box, CircularProgress, CssVarsProvider, Divider } from "@mui/joy";
+import {
+  Box,
+  CircularProgress,
+  CssVarsProvider,
+  Divider,
+  extendTheme,
+} from "@mui/joy";
 import { useAuth } from "./context/auth-provider";
 import Notes from "./pages/Notes";
 import Header from "./components/header";
 import Login from "./pages/Login";
+const theme = extendTheme({
+  cssVarPrefix: "company",
+});
 
 export default function DefaultLayout() {
   const { loading, user } = useAuth();
@@ -20,11 +29,25 @@ export default function DefaultLayout() {
       </div>
     );
   return (
-    <Box sx={{ maxWidth: "80rem", mx: "auto" }}>
-      <CssVarsProvider />
-      {user && <Header />}
-      <Divider />
-      {user ? <Notes /> : <Login />}
-    </Box>
+    <CssVarsProvider
+      theme={theme}
+      modeStorageKey="demo_identify-system-mode"
+      disableNestedContext
+    >
+      <Box
+        sx={{
+          background: theme.vars.palette.background.body,
+          height: "100vh",
+        }}
+      >
+        <div
+          style={{ maxWidth: "80rem", marginLeft: "auto", marginRight: "auto" }}
+        >
+          {user && <Header />}
+          <Divider />
+          {user ? <Notes /> : <Login />}
+        </div>
+      </Box>
+    </CssVarsProvider>
   );
 }

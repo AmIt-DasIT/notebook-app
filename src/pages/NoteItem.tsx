@@ -261,14 +261,13 @@ export default function NoteItem({ note, onNoteUpdated }: NoteItemProps) {
       </Modal>
       <Card
         sx={{
-          background: note.color,
           minWidth: 280,
           maxWidth: 320,
           maxHeight: 200,
           overflowX: "hidden",
           borderRadius: "xl",
         }}
-        variant="plain"
+        variant="soft"
       >
         <Typography level="title-lg">{note.title}</Typography>
 
