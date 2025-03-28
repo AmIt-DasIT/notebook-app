@@ -8,6 +8,7 @@ import {
 import { auth, db, googleProvider } from "../../firebase-config";
 import { signInWithPopup, signOut, User } from "firebase/auth";
 import { getDocs, collection } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -51,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await signOut(auth);
     setUser(null);
+    toast.success("Logout successfully!");
   };
 
   return (

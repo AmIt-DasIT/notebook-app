@@ -15,10 +15,10 @@ import {
 } from "@mui/joy";
 import { Add } from "@mui/icons-material";
 import React from "react";
+import toast from "react-hot-toast";
 
 interface AddNoteFormProps {
   onNoteAdded: () => void;
-  showToast: (type: "success" | "error", text: string) => void;
   valueBeforeEdit?: {
     title: string;
     text: string;
@@ -29,7 +29,6 @@ const COLORS = ["#FEF08A", "#BBF7D0", "#BFDBFE", "#FECACA", "#E9D5FF"];
 
 export default function NoteForm({
   onNoteAdded,
-  showToast,
   valueBeforeEdit,
 }: AddNoteFormProps) {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -40,7 +39,7 @@ export default function NoteForm({
 
   const handleAddNote = async () => {
     if (!newNote.trim()) {
-      showToast("error", "Please write something before adding a note.");
+      toast.error("Please write something before adding a note.");
       return;
     }
 
@@ -56,12 +55,12 @@ export default function NoteForm({
         userId: user?.uid,
       });
 
-      showToast("success", "Note added successfully!");
+      toast.success("Note added successfully!");
       setNewTitle("");
       setNewNote("");
       onNoteAdded();
     } catch (error) {
-      showToast("error", "Failed to add note. Try again.");
+      toast.error("Failed to add note. Try again.");
     } finally {
       setIsAdding(false);
       setOpen(false);

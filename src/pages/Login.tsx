@@ -19,6 +19,7 @@ import { auth, db } from "../../firebase-config";
 import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
 import { doc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ function Login() {
     try {
       if (isSignup) {
         await createUserWithEmailAndPassword(auth, email, password);
-        alert("Signup successful");
+        toast.success("Signup successfully !");
       } else {
         const result = await signInWithEmailAndPassword(auth, email, password);
         const user = result.user;
@@ -45,7 +46,7 @@ function Login() {
           name: user.displayName,
           createdAt: new Date(), // Add any other fields as needed
         });
-        alert("Login successful");
+        toast.success("Login successfully!");
       }
     } catch (error) {
       // alert("Error: " + error.message);
@@ -68,7 +69,7 @@ function Login() {
         name: user.displayName,
         createdAt: new Date(), // Add any other fields as needed
       });
-      alert("Google login successful");
+      toast.success("Google login successful");
     } catch (error) {
       // alert("Error with Google login: " + error.message);
     }

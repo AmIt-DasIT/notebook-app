@@ -29,18 +29,14 @@ import {
   Typography,
 } from "@mui/joy";
 import { Delete, Edit, Share } from "@mui/icons-material";
+import toast from "react-hot-toast";
 
 interface NoteItemProps {
   note: Note;
   onNoteUpdated: () => void;
-  showToast: (type: "success" | "error", text: string) => void;
 }
 
-export default function NoteItem({
-  note,
-  onNoteUpdated,
-  showToast,
-}: NoteItemProps) {
+export default function NoteItem({ note, onNoteUpdated }: NoteItemProps) {
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(note.title || "");
@@ -56,10 +52,10 @@ export default function NoteItem({
   const handleDelete = async () => {
     try {
       await deleteDoc(doc(db, `users/${user?.uid}/notes`, note.id));
-      showToast("success", "Note deleted successfully!");
+      toast.success("Note deleted successfully!");
       onNoteUpdated();
     } catch (error) {
-      showToast("error", "Failed to delete note. Try again.");
+      toast.error("Failed to delete note. Try again.");
     }
   };
 
@@ -71,12 +67,12 @@ export default function NoteItem({
         text: editedText,
         sharedWith: sharedUsers,
       });
-      showToast("success", "Note updated successfully!");
+      toast.success("Note updated successfully!");
       setIsEditing(false);
       setOpen(false);
       onNoteUpdated();
     } catch (error) {
-      showToast("error", "Failed to update note. Try again.");
+      toast.error("Failed to update note. Try again.");
     }
   };
 
@@ -96,13 +92,12 @@ export default function NoteItem({
       console.log("This is userSnapshot", userSnapshot.docs);
 
       if (userSnapshot.empty) {
-        alert("User not found!");
+        toast.error("User not found!");
         setLoading(false);
         return;
       }
 
       const recipientUserId = userSnapshot.docs[0].id;
-      console.log("Recipient User ID:", recipientUserId);
 
       if (noteToShare) {
         const sharedNoteRef = doc(db, `notes`, noteToShare.id);
@@ -116,22 +111,18 @@ export default function NoteItem({
           sharedWith: updatedSharedWith,
         });
 
-        alert("Note shared successfully!");
+        // await sendNotificationToRecipient(recipientUserId, noteToShare.id);
+
+        toast.success("Note shared successfully!");
         setOpen(false);
         setRecipientEmail("");
       }
     } catch (error) {
-      alert("Error sharing note: " + (error as Error).message);
+      toast.error("Error sharing note: " + (error as Error).message);
     }
 
     setLoading(false);
   };
-
-  console.log(
-    allUsers
-      .filter((userData) => note.sharedWith?.includes(userData.id))
-      .map((user) => user.email)
-  );
 
   return (
     <>
@@ -280,13 +271,7 @@ export default function NoteItem({
         variant="plain"
       >
         <Typography level="title-lg">{note.title}</Typography>
-        {note.shared && (
-          <Typography level="body-xs" textColor="danger.700">
-            Shared by{" "}
-            {allUsers.find((user) => user.id === note.userId)?.name ||
-              "Unknown"}
-          </Typography>
-        )}
+
         <Typography
           level="body-sm"
           overflow={"scroll"}
@@ -311,6 +296,25 @@ export default function NoteItem({
               sx={{ cursor: "pointer" }}
             />
           </Box>
+        )}
+        {note.shared && (
+          <Typography
+            level="body-xs"
+            textColor="danger.600"
+            fontSize={10}
+            textAlign={"end"}
+          >
+            Shared by{" "}
+            <Typography
+              level="body-xs"
+              textColor="danger.700"
+              fontSize={10}
+              fontWeight={600}
+            >
+              {allUsers.find((user) => user.id === note.userId)?.name ||
+                "Unknown"}
+            </Typography>
+          </Typography>
         )}
       </Card>
     </>
