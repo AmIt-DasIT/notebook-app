@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { db } from "../../firebase-config";
+import { db } from "../../../firebase-config";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { useAuth } from "../context/auth-provider";
+import { useAuth } from "../../context/auth-provider";
 import NoteForm from "./NoteForm";
 import NoteItem from "./NoteItem";
 import { Box, CircularProgress, Stack, Typography } from "@mui/joy";

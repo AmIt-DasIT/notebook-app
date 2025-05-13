@@ -12,9 +12,7 @@ export default function Header() {
         p: 1.5,
       }}
     >
-      <Typography level="h2" fontWeight={500}>
-        Notes
-      </Typography>
+      <Typography level="h2">Notes</Typography>
       <Auth />
     </Box>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { db } from "../../firebase-config";
+import { db } from "../../../firebase-config";
 import {
   doc,
   deleteDoc,
@@ -10,7 +10,7 @@ import {
   query,
 } from "firebase/firestore";
 import { Note } from "./Notes";
-import { useAuth } from "../context/auth-provider";
+import { useAuth } from "../../context/auth-provider";
 import {
   Box,
   Button,
@@ -127,8 +127,6 @@ export default function NoteItem({ note, onNoteUpdated }: NoteItemProps) {
   return (
     <>
       <Modal
-        aria-labelledby="modal-title"
-        aria-describedby="modal-desc"
         open={open}
         onClose={() => {
           setOpen(false);
@@ -141,124 +139,128 @@ export default function NoteItem({ note, onNoteUpdated }: NoteItemProps) {
           alignItems: "center",
         }}
       >
-        {noteToShare ? (
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "white",
-              p: 3,
-              borderRadius: "8px",
-              boxShadow: 24,
-            }}
-          >
-            <Typography level="body-md" mb={2}>
-              Share Note
-            </Typography>
-            <FormControl sx={{ mb: 2 }}>
-              <FormLabel>Email of recipient</FormLabel>
-              <Input
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-                variant="outlined"
+        <>
+          {noteToShare ? (
+            <Sheet
+              sx={{
+                p: 3,
+                borderRadius: "8px",
+              }}
+              variant="outlined"
+            >
+              <ModalClose variant="plain" sx={{ m: 1 }} />
+              <Typography level="h4" mb={2}>
+                Share Note
+              </Typography>
+              <FormControl sx={{ mb: 2 }}>
+                <FormLabel>Email of recipient</FormLabel>
+                <Input
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  variant="outlined"
+                  fullWidth
+                />
+              </FormControl>
+              <Button
                 fullWidth
-              />
-            </FormControl>
-            <Button
-              fullWidth
-              onClick={handleShare}
-              variant="solid"
-              color="primary"
-              disabled={loading}
-            >
-              {loading ? "Sharing..." : "Share Note"}
-            </Button>
-          </Box>
-        ) : (
-          <Sheet
-            variant="outlined"
-            sx={{ minWidth: 500, borderRadius: "md", p: 3, boxShadow: "lg" }}
-          >
-            <ModalClose variant="plain" sx={{ m: 1 }} />
-            <Typography
-              component="h2"
-              id="modal-title"
-              level="h4"
-              textColor="inherit"
-              sx={{ fontWeight: "lg", mb: 1 }}
-            >
-              Update Note
-            </Typography>
-            <Input
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
-              placeholder="Title"
-              sx={{ mb: 2 }}
-            />
-            <Textarea
-              value={editedText}
-              onChange={(e) => setEditedText(e.target.value)}
-              minRows={4}
-              maxRows={8}
-              placeholder="Take a note..."
-              sx={{ mb: 2 }}
-            />
-            {note.sharedWith?.length! > 0 && (
-              <Select
-                multiple
-                defaultValue={allUsers
-                  .filter((userData) => note.sharedWith?.includes(userData.id))
-                  .map((user) => user.id)}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", gap: "0.25rem" }}>
-                    {selected.map((selectedOption) => (
-                      <Chip variant="soft" color="primary">
-                        {selectedOption.label}
-                      </Chip>
-                    ))}
-                  </Box>
-                )}
-                onChange={(_, value) => {
-                  setSharedUsers(value);
-                }}
-                sx={{ minWidth: "15rem", mb: 2 }}
-                slotProps={{
-                  listbox: {
-                    sx: {
-                      width: "100%",
-                    },
-                  },
-                }}
+                onClick={handleShare}
+                variant="solid"
+                color="primary"
+                disabled={loading}
               >
-                {allUsers
-                  .filter((userData) => note.sharedWith?.includes(userData.id))
-                  .map((user, index) => (
-                    <Option key={index} value={user.id}>
-                      {user.email}
-                    </Option>
-                  ))}
-              </Select>
-            )}
-            <Button
-              onClick={handleEdit}
-              variant="soft"
-              disabled={isEditing}
-              size="md"
+                {loading ? "Sharing..." : "Share Note"}
+              </Button>
+            </Sheet>
+          ) : (
+            <Sheet
+              variant="outlined"
+              sx={{ minWidth: 500, borderRadius: "md", p: 3, boxShadow: "lg" }}
             >
-              {isEditing ? (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <CircularProgress size="sm" />
-                  Updating...
-                </Box>
-              ) : (
-                "Update"
+              <ModalClose variant="plain" sx={{ m: 1 }} />
+              <Typography
+                component="h2"
+                id="modal-title"
+                level="h4"
+                textColor="inherit"
+                sx={{ fontWeight: "lg", mb: 1 }}
+              >
+                Update Note
+              </Typography>
+              <Input
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                placeholder="Title"
+                sx={{ mb: 2 }}
+              />
+              <Textarea
+                value={editedText}
+                onChange={(e) => setEditedText(e.target.value)}
+                minRows={4}
+                maxRows={8}
+                placeholder="Take a note..."
+                sx={{ mb: 2 }}
+              />
+              {note.sharedWith?.length! > 0 && (
+                <Select
+                  multiple
+                  defaultValue={allUsers
+                    .filter((userData) =>
+                      note.sharedWith?.includes(userData.id)
+                    )
+                    .map((user) => user.id)}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", gap: "0.25rem" }}>
+                      {selected.map((selectedOption) => (
+                        <Chip variant="soft" color="primary">
+                          {selectedOption.label}
+                        </Chip>
+                      ))}
+                    </Box>
+                  )}
+                  onChange={(_, value) => {
+                    setSharedUsers(value);
+                  }}
+                  sx={{ minWidth: "15rem", mb: 2 }}
+                  slotProps={{
+                    listbox: {
+                      sx: {
+                        width: "100%",
+                      },
+                    },
+                  }}
+                >
+                  {allUsers
+                    .filter((userData) =>
+                      note.sharedWith?.includes(userData.id)
+                    )
+                    .map((user, index) => (
+                      <Option key={index} value={user.id}>
+                        {user.email}
+                      </Option>
+                    ))}
+                </Select>
               )}
-            </Button>
-          </Sheet>
-        )}
+              <Button
+                onClick={handleEdit}
+                variant="soft"
+                disabled={isEditing}
+                size="md"
+              >
+                {isEditing ? (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <CircularProgress size="sm" />
+                    Updating...
+                  </Box>
+                ) : (
+                  "Update"
+                )}
+              </Button>
+            </Sheet>
+          )}
+        </>
       </Modal>
+
+      {/* Card */}
       <Card
         sx={{
           minWidth: 280,

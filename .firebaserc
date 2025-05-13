@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "notebook-app-dd8e8"
-  }
+    "note": "notebook-app-4f017",
+    "default": "notebook-app-4f017"
+  },
+  "targets": {},
+  "etags": {}
 }

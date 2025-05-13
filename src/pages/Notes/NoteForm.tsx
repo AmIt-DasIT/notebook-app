@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { addDoc, collection } from "firebase/firestore";
-import { db } from "../../firebase-config";
-import { useAuth } from "../context/auth-provider";
+import { db } from "../../../firebase-config";
+import { useAuth } from "../../context/auth-provider";
 import {
   Box,
   Button,
